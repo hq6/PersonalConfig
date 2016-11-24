@@ -1,0 +1,195 @@
+source ~/.vimsets/HTML.vim
+source ~/.vimsets/comments.vim
+source ~/.vimsets/See.vim
+source ~/.vimsets/Present.vim
+so ~/.vimsets/wordlist.vim
+set shiftwidth=4
+set tabstop=4
+
+au BufNew,BufRead *.h,*.c,*.cc,*.cpp,*.java set cindent
+set nohlsearch
+set expandtab
+set timeout timeoutlen=300
+set nowarn
+set display+=lastline
+set cinkeys-=0#
+set indentkeys-=0#
+
+nnoremap <F5> "=strftime("%c")<CR>P
+inoremap <F5> <C-R>=strftime("%c")<CR>
+
+highlight Comment ctermfg=6
+"match ErrorMsg '\%>100v.\+'
+
+au BufNew,BufRead *.txt set et
+au BufNew,BufRead *.py set et
+au BufNew,BufRead Makefile set noet
+
+au BufNew,BufRead *.ans source ~/.vimsets/apdl.vim
+
+set wildignore=*.class,*.pdf
+
+set tabpagemax=50
+
+let @e='cwend'
+let @b='cwbegin'
+
+map ,e cwendb
+map ,b cwbeginb
+
+set splitright
+
+set autochdir
+
+command Todo noautocmd vimgrep /TODO\|FIXME/j ** | cw
+
+
+" Create directories on demand
+function s:MkNonExDir(file, buf)
+    if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
+        let dir=fnamemodify(a:file, ':h')
+        if !isdirectory(dir)
+            call mkdir(dir, 'p')
+        endif
+    endif
+endfunction
+augroup BWCCreateDir
+    autocmd!
+    autocmd BufWritePre * :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
+augroup END
+
+set formatoptions=tcq
+set comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-,fb:\d\+.
+set autoindent
+
+" Formating for numbered lsits
+set fo+=n
+
+" Computations on the 
+map ,c :s/.*/\=eval(submatch(0))<CR>
+
+" Scroll arbitrary
+function ScrollToPercent(percent)
+    let movelines=winheight(0)*a:percent/100
+
+    if has("float") && type(movelines)==type(0.0)
+        let movelines=float2nr(movelines)
+    endif
+
+    let oldso=&so
+    execute ":set so=" . movelines
+    execute "normal! zt"
+    execute ":set so=" . oldso
+endfunction
+
+nnoremap zz :call ScrollToPercent(25)<CR>
+
+set viminfo='10,\"100,:20,%,n~/.viminfo
+
+
+au BufNew,BufRead NOTE,Note setf Note
+if @% =~ '\d\{4}-\d\{2}-\d\{2}'
+
+
+    setf Note
+endif
+
+"match ErrorMsg '\%>80v.\+'
+
+nmap "=yy :let @+=@+.getline('.')<CR>
+
+function Colors()
+    colorscheme
+    colorscheme <C-z><S-Tab>
+endfunction
+
+command Col %!column -t -s '	'
+
+au BufNew,BufRead *.txt set noet
+au BufNew,BufRead *.py set et
+
+for i in [1, 2, 3]
+  execute 'nnoremap <leader>'.i.' '.i.'gt'
+endfor
+
+"au BufNew,BufRead * set noet
+
+command Pa set paste
+command Np set nopaste
+
+command Fp echo expand('%:p')
+
+" Go syntax and indent
+if exists("g:did_load_filetypes")
+  filetype off
+  filetype plugin indent off
+endif
+
+set runtimepath+=$HOME/.vim/misc/vim " replace $GOROOT with the output of: go env GOROOT
+filetype plugin indent on
+syntax on
+
+autocmd BufNewFile,BufRead *.md set filetype=markdown
+
+"set tw=100
+"
+"--------------------------------------------------------------------------------
+function! TextEnableCodeSnip(filetype,start,end,textSnipHl) abort
+  let ft=toupper(a:filetype)
+  let group='textGroup'.ft
+  if exists('b:current_syntax')
+    let s:current_syntax=b:current_syntax
+    " Remove current syntax definition, as some syntax files (e.g. cpp.vim)
+    " do nothing if b:current_syntax is defined.
+    unlet b:current_syntax
+  endif
+  execute 'syntax include @'.group.' syntax/'.a:filetype.'.vim'
+  try
+    execute 'syntax include @'.group.' after/syntax/'.a:filetype.'.vim'
+  catch
+  endtry
+  if exists('s:current_syntax')
+    let b:current_syntax=s:current_syntax
+  else
+    unlet b:current_syntax
+  endif
+  execute 'syntax region textSnip'.ft.'
+  \ matchgroup='.a:textSnipHl.'
+  \ start="'.a:start.'" end="'.a:end.'"
+  \ contains=@'.group
+endfunction
+call TextEnableCodeSnip(  'c',   '@begin=c@',   '@end=c@', 'SpecialComment')
+call TextEnableCodeSnip('cpp', '@begin=cpp@', '@end=cpp@', 'SpecialComment')
+"------------------------------------------------------------------------------
+
+command Rws %s!\s\+$!!
+
+set tags=tags;/
+
+" autocmd BufWinEnter * lcd %:p:h
+
+
+" For debugging netrw
+let &runtimepath='/home/hq6/Code/src_for_oss_projects/netrw.vim,'.&runtimepath
+let &runtimepath='/home/hq6/Code/src_for_oss_projects/netrw.vim,'.&runtimepath
+
+autocmd Filetype c,cpp,cc set comments^=:///
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+highlight ColorColumn ctermbg=magenta
+" set colorcolumn=81
+" call matchadd('ColorColumn', '\%81v.', 100)
+
+
+"====[ Make tabs, trailing whitespace, and non-breaking spaces visible ]======
+    exec "set listchars=tab:\\ \\ ,trail:\uB7,nbsp:~"
+    set list
+
+" vmap plugin
+vnoremap <expr>  ++  VMATH_YankAndAnalyse()
+nmap         ++  vip++
+
+
+" Clean up trailing whitespace globally
+map ,s :%s/\s\+$//g
