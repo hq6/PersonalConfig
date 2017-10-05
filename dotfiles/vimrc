@@ -1,7 +1,6 @@
 source ~/.vimsets/HTML.vim
 source ~/.vimsets/comments.vim
 source ~/.vimsets/See.vim
-source ~/.vimsets/Present.vim
 so ~/.vimsets/wordlist.vim
 set shiftwidth=4
 set tabstop=4
@@ -38,34 +37,20 @@ map ,e cwendb
 map ,b cwbeginb
 
 set splitright
-
 set autochdir
+command GTodo noautocmd vimgrep /TODO\|FIXME/j ** | cw
+command Todo noautocmd vimgrep /TODO\|FIXME/j % | cw
 
-command Todo noautocmd vimgrep /TODO\|FIXME/j ** | cw
-
-
-" Create directories on demand
-function s:MkNonExDir(file, buf)
-    if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
-        let dir=fnamemodify(a:file, ':h')
-        if !isdirectory(dir)
-            call mkdir(dir, 'p')
-        endif
-    endif
-endfunction
-augroup BWCCreateDir
-    autocmd!
-    autocmd BufWritePre * :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
-augroup END
-
-set formatoptions=tcq
-set comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-,fb:\d\+.
 set autoindent
 
 " Formating for numbered lsits
+set formatoptions=tcq
+set comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-,fb:\d\+.
+set autoindent
 set fo+=n
+autocmd BufNewFile,BufRead * setlocal formatoptions+=tcqn
 
-" Computations on the 
+" Evaluate expressions within a line.
 map ,c :s/.*/\=eval(submatch(0))<CR>
 
 " Scroll arbitrary
@@ -84,98 +69,42 @@ endfunction
 
 nnoremap zz :call ScrollToPercent(25)<CR>
 
-set viminfo='10,\"100,:20,%,n~/.viminfo
+autocmd BufNewFile,BufReadPre,FilterReadPre,FileReadPre * setf Note
 
-
-au BufNew,BufRead NOTE,Note setf Note
-if @% =~ '\d\{4}-\d\{2}-\d\{2}'
-
-
-    setf Note
-endif
-
+" Uncomment to enable 80 characters error highlighting.
 "match ErrorMsg '\%>80v.\+'
 
-nmap "=yy :let @+=@+.getline('.')<CR>
+" Convert terms_with_underscores to camelCase.
+command Cam s#_\(\l\)#\u\1#g
 
-function Colors()
-    colorscheme
-    colorscheme <C-z><S-Tab>
-endfunction
-
-command Col %!column -t -s '	'
+set statusline+=%F
+set laststatus=2
 
 au BufNew,BufRead *.txt set noet
 au BufNew,BufRead *.py set et
-
-for i in [1, 2, 3]
-  execute 'nnoremap <leader>'.i.' '.i.'gt'
-endfor
-
-"au BufNew,BufRead * set noet
+au BufRead *.log set nowrap
 
 command Pa set paste
 command Np set nopaste
-
 command Fp echo expand('%:p')
+map ,f :echo expand('%:p')<CR>
 
-" Go syntax and indent
-if exists("g:did_load_filetypes")
-  filetype off
-  filetype plugin indent off
+" Better color scheme for vimdiff.
+if &diff
+   syntax off
+   highlight DiffAdd cterm=NONE  ctermbg=Yellow
+   highlight DiffDelete cterm=NONE  ctermbg=Red 
+   highlight DiffChange cterm=NONE  ctermbg=NONE
+   highlight DiffText cterm=NONE  ctermbg=Yellow
 endif
 
-set runtimepath+=$HOME/.vim/misc/vim " replace $GOROOT with the output of: go env GOROOT
-filetype plugin indent on
-syntax on
-
-autocmd BufNewFile,BufRead *.md set filetype=markdown
-
-"set tw=100
-"
-"--------------------------------------------------------------------------------
-function! TextEnableCodeSnip(filetype,start,end,textSnipHl) abort
-  let ft=toupper(a:filetype)
-  let group='textGroup'.ft
-  if exists('b:current_syntax')
-    let s:current_syntax=b:current_syntax
-    " Remove current syntax definition, as some syntax files (e.g. cpp.vim)
-    " do nothing if b:current_syntax is defined.
-    unlet b:current_syntax
-  endif
-  execute 'syntax include @'.group.' syntax/'.a:filetype.'.vim'
-  try
-    execute 'syntax include @'.group.' after/syntax/'.a:filetype.'.vim'
-  catch
-  endtry
-  if exists('s:current_syntax')
-    let b:current_syntax=s:current_syntax
-  else
-    unlet b:current_syntax
-  endif
-  execute 'syntax region textSnip'.ft.'
-  \ matchgroup='.a:textSnipHl.'
-  \ start="'.a:start.'" end="'.a:end.'"
-  \ contains=@'.group
-endfunction
-call TextEnableCodeSnip(  'c',   '@begin=c@',   '@end=c@', 'SpecialComment')
-call TextEnableCodeSnip('cpp', '@begin=cpp@', '@end=cpp@', 'SpecialComment')
-"------------------------------------------------------------------------------
-
-command Rws %s!\s\+$!!
+" Remove trailing space
+command Rts %s!\s\+$!!
+map ,s :%s/\s\+$//
 
 set tags=tags;/
 
-" autocmd BufWinEnter * lcd %:p:h
-
-
-" For debugging netrw
-let &runtimepath='/home/hq6/Code/src_for_oss_projects/netrw.vim,'.&runtimepath
-let &runtimepath='/home/hq6/Code/src_for_oss_projects/netrw.vim,'.&runtimepath
-
 autocmd Filetype c,cpp,cc set comments^=:///
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 highlight ColorColumn ctermbg=magenta
 " set colorcolumn=81
@@ -186,10 +115,26 @@ highlight ColorColumn ctermbg=magenta
     exec "set listchars=tab:\\ \\ ,trail:\uB7,nbsp:~"
     set list
 
-" vmap plugin
-vnoremap <expr>  ++  VMATH_YankAndAnalyse()
-nmap         ++  vip++
+" Prevent vim from jumping when we scroll off-screen.
+set sidescroll=1
 
+" Custom highlight groups for match and 2match commands.
+highlight Red  term=standout ctermfg=1 guifg=Red
+highlight Green  term=bold ctermfg=2 gui=bold guifg=SeaGreen
+highlight Blue guifg=Blue ctermfg=Cyan
+highlight S term=reverse ctermfg=0 ctermbg=3 guibg=Cyan
 
-" Clean up trailing whitespace globally
-map ,s :%s/\s\+$//g
+" Create directories on demand
+function s:MkNonExDir(file, buf)
+    if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
+        let dir=fnamemodify(a:file, ':h')
+        if !isdirectory(dir)
+            call mkdir(dir, 'p')
+        endif
+    endif
+endfunction
+augroup BWCCreateDir
+    autocmd!
+    autocmd BufWritePre * :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
+augroup END
+
