@@ -1,11 +1,10 @@
-source ~/.vimsets/HTML.vim
 source ~/.vimsets/comments.vim
-source ~/.vimsets/See.vim
-so ~/.vimsets/wordlist.vim
+source ~/.vimsets/C.vim
+source ~/.vimsets/functions.vim
+
+syntax on
 set shiftwidth=4
 set tabstop=4
-
-au BufNew,BufRead *.h,*.c,*.cc,*.cpp,*.java set cindent
 set nohlsearch
 set expandtab
 set timeout timeoutlen=300
@@ -13,34 +12,10 @@ set nowarn
 set display+=lastline
 set cinkeys-=0#
 set indentkeys-=0#
-
-nnoremap <F5> "=strftime("%c")<CR>P
-inoremap <F5> <C-R>=strftime("%c")<CR>
-
-highlight Comment ctermfg=6
-"match ErrorMsg '\%>100v.\+'
-
-au BufNew,BufRead *.txt set et
-au BufNew,BufRead *.py set et
-au BufNew,BufRead Makefile set noet
-
-au BufNew,BufRead *.ans source ~/.vimsets/apdl.vim
-
 set wildignore=*.class,*.pdf
-
 set tabpagemax=50
-
-let @e='cwend'
-let @b='cwbegin'
-
-map ,e cwendb
-map ,b cwbeginb
-
 set splitright
 set autochdir
-command GTodo noautocmd vimgrep /TODO\|FIXME/j ** | cw
-command Todo noautocmd vimgrep /TODO\|FIXME/j % | cw
-
 set autoindent
 
 " Formating for numbered lsits
@@ -48,46 +23,64 @@ set formatoptions=tcq
 set comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-,fb:\d\+.
 set autoindent
 set fo+=n
+
+set statusline+=%F
+set laststatus=3
+set tags=tags;/
+
+"====[ Make tabs, trailing whitespace, and non-breaking spaces visible ]======
+exec "set listchars=tab:\\ \\ ,trail:\uB7,nbsp:~"
+set list
+
+" Prevent vim from jumping when we scroll off-screen.
+set sidescroll=1
+
+nnoremap <F5> "=strftime("%c")<CR>P
+inoremap <F5> <C-R>=strftime("%c")<CR>
+
+highlight Comment ctermfg=6
+
+autocmd BufNewFile,BufReadPre,FilterReadPre,FileReadPre * setf Note
+autocmd BufNew,BufRead *.h,*.c,*.cc,*.cpp,*.java set cindent
+autocmd BufNew,BufRead *.txt set et
+autocmd BufNew,BufRead *.py set et
+autocmd BufNew,BufRead Makefile set noet
+autocmd BufNew,BufRead *.ans source ~/.vimsets/apdl.vim
+autocmd BufNew,BufRead *.txt set noet
+autocmd BufNew,BufRead *.py set et
+autocmd BufRead *.log set nowrap
 autocmd BufNewFile,BufRead * setlocal formatoptions+=tcqn
+autocmd Filetype c,cpp,cc set comments^=:///
+
+" Create directories on demand.
+augroup BWCCreateDir
+    autocmd!
+    autocmd BufWritePre * :call MkNonExDir(expand('<afile>'), +expand('<abuf>'))
+augroup END
+
+command GTodo noautocmd vimgrep /TODO\|FIXME/j ** | cw
+command Todo noautocmd vimgrep /TODO\|FIXME/j % | cw
+
+" Convert terms_with_underscores to camelCase.
+command Cam s#_\(\l\)#\u\1#g
+command Pa set paste
+command Np set nopaste
+command Fp echo expand('%:p')
+
+" Remove trailing space
+command Rts %s!\s\+$!!
+
+" Show the full path of the file.
+map ,f :echo expand('%:p')<CR>
 
 " Evaluate expressions within a line.
 map ,c :s/.*/\=eval(submatch(0))<CR>
 
-" Scroll arbitrary
-function ScrollToPercent(percent)
-    let movelines=winheight(0)*a:percent/100
+" Remove trailing space
+map ,s :%s/\s\+$//
 
-    if has("float") && type(movelines)==type(0.0)
-        let movelines=float2nr(movelines)
-    endif
-
-    let oldso=&so
-    execute ":set so=" . movelines
-    execute "normal! zt"
-    execute ":set so=" . oldso
-endfunction
-
+" Change zz to scroll file until cursor is 25% from the top of the file.
 nnoremap zz :call ScrollToPercent(25)<CR>
-
-autocmd BufNewFile,BufReadPre,FilterReadPre,FileReadPre * setf Note
-
-" Uncomment to enable 80 characters error highlighting.
-"match ErrorMsg '\%>80v.\+'
-
-" Convert terms_with_underscores to camelCase.
-command Cam s#_\(\l\)#\u\1#g
-
-set statusline+=%F
-set laststatus=2
-
-au BufNew,BufRead *.txt set noet
-au BufNew,BufRead *.py set et
-au BufRead *.log set nowrap
-
-command Pa set paste
-command Np set nopaste
-command Fp echo expand('%:p')
-map ,f :echo expand('%:p')<CR>
 
 " Better color scheme for vimdiff.
 if &diff
@@ -98,43 +91,8 @@ if &diff
    highlight DiffText cterm=NONE  ctermbg=Yellow
 endif
 
-" Remove trailing space
-command Rts %s!\s\+$!!
-map ,s :%s/\s\+$//
-
-set tags=tags;/
-
-autocmd Filetype c,cpp,cc set comments^=:///
-
-highlight ColorColumn ctermbg=magenta
-" set colorcolumn=81
-" call matchadd('ColorColumn', '\%81v.', 100)
-
-
-"====[ Make tabs, trailing whitespace, and non-breaking spaces visible ]======
-    exec "set listchars=tab:\\ \\ ,trail:\uB7,nbsp:~"
-    set list
-
-" Prevent vim from jumping when we scroll off-screen.
-set sidescroll=1
-
 " Custom highlight groups for match and 2match commands.
 highlight Red  term=standout ctermfg=1 guifg=Red
 highlight Green  term=bold ctermfg=2 gui=bold guifg=SeaGreen
 highlight Blue guifg=Blue ctermfg=Cyan
 highlight S term=reverse ctermfg=0 ctermbg=3 guibg=Cyan
-
-" Create directories on demand
-function s:MkNonExDir(file, buf)
-    if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
-        let dir=fnamemodify(a:file, ':h')
-        if !isdirectory(dir)
-            call mkdir(dir, 'p')
-        endif
-    endif
-endfunction
-augroup BWCCreateDir
-    autocmd!
-    autocmd BufWritePre * :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
-augroup END
-

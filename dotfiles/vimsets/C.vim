@@ -9,12 +9,3 @@
 \<CR>int main(){
 \<CR>
 \<CR>}
-
-:iab CPPMAIN 
-\#include <iostream><CR>
-\<CR>
-\using namespace std;<CR>
-\<CR>
-\<CR>int main(){
-\<CR>
-\<CR>}
