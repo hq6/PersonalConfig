@@ -33,5 +33,36 @@ alias battery=acpi
 # Aliases for when one wants to try typing without echo.
 alias a='stty echo && clear'
 alias d='stty -echo && clear'
-
 alias ta='tmux at'
+
+################################################################################
+# A tool for managing fixed-time work sessions.
+function countdown(){
+    date1=$((`date +%s` + $1));
+    while [ "$date1" -ge `date +%s` ]; do
+        echo -ne "$(date -u --date @$(($date1 - `date +%s`)) +%H:%M:%S)\r";
+        sleep 1
+    done
+}
+
+# Give a time in minutes and get a notification after that much time.
+# Latest iteration.
+b() {
+    if [[ $#  -lt 1 ]]; then
+       return
+    fi
+    msg='Time to take a break!'
+    seconds=$(( 60 * $1 ))
+    ( sleep $seconds && notify-send -u critical 'Work Session End' "$msg" && wall <<<"$msg" &
+      echo $! >> /tmp/count_down_pid
+    )
+    countdown $seconds
+}
+
+e() {
+  if [[ -e "/tmp/count_down_pid" ]]; then
+    kill $(cat /tmp/count_down_pid) 2> /dev/null
+    rm /tmp/count_down_pid
+  fi
+}
+################################################################################
