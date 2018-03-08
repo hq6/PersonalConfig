@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+for i in $@; do
+  inkscape --without-gui --export-png="$(basename $i .svg).png" --export-dpi=300 $i
+done
+
