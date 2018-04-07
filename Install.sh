@@ -24,6 +24,7 @@ if [[ ! -e "$HOME/.bashrc" ]]; then
     cp dotfiles/bashrc "$HOME/.bashrc"
 else
     echo "$HOME/.bashrc already exists. Cowardly refusing to clobber it."
+    echo "set -o vi" >> $HOME/.bashrc
 fi
 
 if [[ ! -e "$HOME/.tmux.conf" ]]; then
