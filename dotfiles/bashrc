@@ -66,3 +66,28 @@ e() {
   fi
 }
 ################################################################################
+# Robust function for calculating minimum and maximum of a column; ignores
+# non-numeric data in a column.
+# First argument is file name, second argument is column number.
+minMaxColumn() {
+python - <<END
+minValue = None
+maxValue = None
+with open("$1") as f:
+  for line in f:
+    try:
+      parts = line.strip().split(",")
+      # Be consistent with 1-based numbering
+      number = float(parts[$2 - 1])
+      if not minValue:
+          minValue = number
+          maxValue = number
+      minValue = min(number, minValue)
+      maxValue = max(number, maxValue)
+    except:
+      # Skip over non-floats
+      pass
+print minValue, maxValue
+END
+}
+################################################################################
