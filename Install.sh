@@ -39,6 +39,9 @@ else
     echo "$HOME/.gitconfig already exists. Cowardly refusing to clobber it."
 fi
 
+# Install color.awk conditionally.
+cp dotfiles/color.awk "$HOME/.color.awk"
+
 # Install certain binaries which are mostly useful on Ubuntu.
 mkdir -p "$HOME/bin"
 cp bin/* "$HOME/bin"
