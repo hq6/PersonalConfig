@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if (test -e "$1");
+then
+for file in "$@"
+do
+	stem="$file"
+	stem=${stem%.*}
+
+	stemnopath=`basename "$file"`
+
+	a2ps --delegate='no'  --footer=$stemnopath -E -C -2 -o "$stem.ps" "$file"
+
+	echo "$stem.pdf"
+	if (test -e "$stem.pdf"); 
+	then
+		ps2pdf "$stem.ps" "$stemnopath.pdf"
+	else
+		ps2pdf "$stem.ps" "$stem.pdf"
+	fi
+	rm "$stem.ps"
+done
+fi
