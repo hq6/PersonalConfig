@@ -96,3 +96,10 @@ highlight Red  term=standout ctermfg=1 guifg=Red
 highlight Green  term=bold ctermfg=2 gui=bold guifg=SeaGreen
 highlight Blue guifg=Blue ctermfg=Cyan
 highlight S term=reverse ctermfg=0 ctermbg=3 guibg=Cyan
+
+" Move visually selected text vertically up and down, replacing text if it was
+" there. This has the advantage of simplicity, but the disadvantage that it
+" leaves space characters on empty lines.
+vmap <C-j> ygvr jR<C-r>"^[`[v`]h
+vmap <C-k> ygvr kR<C-r>"^[`[v`]h
+
