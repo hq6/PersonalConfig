@@ -39,6 +39,12 @@ else
     echo "$HOME/.gitconfig already exists. Cowardly refusing to clobber it."
 fi
 
+if [[ ! -e "$HOME/.inputrc" ]]; then
+    cp dotfiles/inputrc "$HOME/.inputrc"
+else
+    echo "$HOME/.inputrc already exists. Cowardly refusing to clobber it."
+fi
+
 # Install color.awk conditionally.
 cp dotfiles/color.awk "$HOME/.color.awk"
 
