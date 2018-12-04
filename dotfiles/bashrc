@@ -24,6 +24,10 @@ export PATH=$PATH:/home/hq6/Research/A/arachne-sosp2017/scripts
 export PATH=$PATH:/home/hq6/Research/A/CacheTools
 export PATH=$PATH:/home/hq6/Research/A/CacheTools/PerfUtils/scripts
 
+# Make visual editing useable
+export EDITOR=/usr/bin/vim
+export VISUAL=/usr/bin/vim
+
 # Sometimes we want to sudo while preserving our own PATH.
 alias psudo='sudo env "PATH=$PATH" '
 

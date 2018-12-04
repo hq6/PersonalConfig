@@ -25,6 +25,8 @@ if [[ ! -e "$HOME/.bashrc" ]]; then
 else
     echo "$HOME/.bashrc already exists. Cowardly refusing to clobber it."
     echo "set -o vi" >> $HOME/.bashrc
+    echo 'export EDITOR=/usr/bin/vim' >> $HOME/.bashrc
+    echo 'export VISUAL=/usr/bin/vim' >> $HOME/.bashrc
 fi
 
 if [[ ! -e "$HOME/.tmux.conf" ]]; then
