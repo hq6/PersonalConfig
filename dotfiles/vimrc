@@ -17,6 +17,7 @@ set tabpagemax=50
 set splitright
 set autochdir
 set autoindent
+set hidden
 
 " Formating for numbered lsits
 set formatoptions=tcq
@@ -102,3 +103,36 @@ highlight S term=reverse ctermfg=0 ctermbg=3 guibg=Cyan
 " space characters on empty lines.
 vmap <C-j> ygvr jR<C-r>"`[v`]h
 vmap <C-k> ygvr kR<C-r>"`[v`]h
+
+
+" Make the status line more useful.
+" set laststatus=2
+set statusline=%f         " Path to the file
+set statusline+=%=        " Switch to the right side
+set statusline+=%l        " Current line
+set statusline+=/         " Separator
+set statusline+=%L        " Total lines
+
+" Toggle background between light and dark
+map <Leader>bg :let &background = ( &background == "dark"? "light" : "dark")<CR>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Vimwiki related mappings
+" Setting options to allow vimwiki to work at all.
+set nocompatible
+filetype plugin on
+syntax on
+
+let mapleader = ","
+map <Leader>gg <Plug>VimwikiToggleListItem
+
+" Change a block of text into Vimwiki preformatted text.
+vnoremap <Leader>ff <esc>`<O{{{sh<esc>`>o}}}<esc>
+
+
+" Wrapping causes ugliness when Vimwiki shortens links
+autocmd FileType wiki setlocal nowrap
+
+" Conceal preformatted text markers.
+let g:vimwiki_conceal_pre = 1
+let g:vimwiki_key_mappings = {'table_format': 0}
