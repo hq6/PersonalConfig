@@ -36,8 +36,12 @@ set list
 " Prevent vim from jumping when we scroll off-screen.
 set sidescroll=1
 
+" Insert timestamp
 nnoremap <F5> "=strftime("%c")<CR>P
 inoremap <F5> <C-R>=strftime("%c")<CR>
+
+" Insert date
+inoremap <F4> <C-R>=strftime("%F")<CR>
 
 highlight Comment ctermfg=6
 
