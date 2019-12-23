@@ -95,3 +95,10 @@ print minValue, maxValue
 END
 }
 ################################################################################
+alias cdv='pushd /home/hq6/.vim/pack/plugins/start/vimwiki'
+alias mute='amixer sset Master mute'
+alias unmute='amixer sset Master unmute'
+
+alias pbcopy='xclip -selection clipboard'
+alias pbpaste='xclip -selection clipboard -o'
+alias ta='tmux at'
