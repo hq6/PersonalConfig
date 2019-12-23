@@ -12,6 +12,26 @@ set nowarn
 set display+=lastline
 set cinkeys-=0#
 set indentkeys-=0#
+
+nnoremap <F5> "=strftime("%c")<CR>P
+inoremap <F5> <C-R>=strftime("%c")<CR>
+inoremap <F4> <C-R>=strftime("%F")<CR>
+
+" Insert time without leading space or zero
+function! Trim(input_string)
+    return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
+endfunction
+inoremap <F3> <C-R>=Trim(strftime("%l:%M"))<CR>
+
+highlight Comment ctermfg=6
+"match ErrorMsg '\%>100v.\+'
+
+au BufNew,BufRead *.txt set et
+au BufNew,BufRead *.py set et
+au BufNew,BufRead Makefile set noet
+
+au BufNew,BufRead *.ans source ~/.vimsets/apdl.vim
+
 set wildignore=*.class,*.pdf
 set tabpagemax=50
 set splitright
@@ -119,6 +139,12 @@ set statusline+=%L        " Total lines
 
 " Toggle background between light and dark
 map <Leader>bg :let &background = ( &background == "dark"? "light" : "dark")<CR>
+
+" Clean up trailing whitespace globally
+map ,s :%s/\s\+$//g
+
+" Prevent vim from jumping when we scroll off-screen.
+set sidescroll=1
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Vimwiki related mappings
